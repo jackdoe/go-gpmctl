@@ -63,13 +63,6 @@ var DefaultConf = GPMConnect{
 }
 ```
 
-#### func  TTY
-
-```go
-func TTY() (int, error)
-```
-from https://github.com/tudurom/ttyname
-
 #### type Event
 
 ```go
@@ -89,24 +82,24 @@ type Event struct {
 }
 ```
 
-typedef struct Gpm_Event {
+Event defined as per gpm.h
 
-    unsigned char buttons, modifiers;  /* try to be a multiple of 4 */
-    unsigned short vc;
-    short dx, dy, x, y; /* displacement x,y for this event, and absolute x,y */
-    enum Gpm_Etype type;
-    /* clicks e.g. double click are determined by time-based processing */
-    int clicks;
-    enum Gpm_Margin margin;
-    /* wdx/y: displacement of wheels in this event. Absolute values are not
-     * required, because wheel movement is typically used for scrolling
-     * or selecting fields, not for cursor positioning. The application
-     * can determine when the end of file or form is reached, and not
-     * go any further.
-     * A single mouse will use wdy, "vertical scroll" wheel. */
-    short wdx, wdy;
-
-} Gpm_Event;
+    typedef struct Gpm_Event {
+      unsigned char buttons, modifiers;  /* try to be a multiple of 4 */
+      unsigned short vc;
+      short dx, dy, x, y; /* displacement x,y for this event, and absolute x,y */
+      enum Gpm_Etype type;
+      /* clicks e.g. double click are determined by time-based processing */
+      int clicks;
+      enum Gpm_Margin margin;
+      /* wdx/y: displacement of wheels in this event. Absolute values are not
+       * required, because wheel movement is typically used for scrolling
+       * or selecting fields, not for cursor positioning. The application
+       * can determine when the end of file or form is reached, and not
+       * go any further.
+       * A single mouse will use wdy, "vertical scroll" wheel. */
+      short wdx, wdy;
+    }              Gpm_Event;
 
 #### func (Event) String
 
@@ -120,7 +113,7 @@ func (event Event) String() string
 type EventType int
 ```
 
-Gpm Event Type -
+Gpm Event Type - as per gpm.h
 
     enum Gpm_Etype {
       GPM_MOVE=1,
@@ -223,7 +216,7 @@ Struct sent via the socket after connecting
 type Margin int
 ```
 
-Gpm Margin Enum
+Gpm Margin Enum as per gpm.h
 
     enum Gpm_Margin {GPM_TOP=1, GPM_BOT=2, GPM_LFT=4, GPM_RGT=8};
 

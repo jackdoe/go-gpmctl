@@ -52,10 +52,26 @@ import (
 	"unsafe"
 )
 
+var nativeEndian binary.ByteOrder
+
+func init() {
+	buf := [2]byte{}
+	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
+
+	switch buf {
+	case [2]byte{0xCD, 0xAB}:
+		nativeEndian = binary.LittleEndian
+	case [2]byte{0xAB, 0xCD}:
+		nativeEndian = binary.BigEndian
+	default:
+		nativeEndian = binary.LittleEndian
+	}
+}
+
 const fd0 = "/proc/self/fd/0"
 
 // from https://github.com/tudurom/ttyname
-func TTY() (int, error) {
+func getTTY() (int, error) {
 	dest, err := os.Readlink(fd0)
 	if err != nil {
 		return 0, err
@@ -71,7 +87,7 @@ func TTY() (int, error) {
 	return int(tty), nil
 }
 
-// Gpm Event Type -
+// Gpm Event Type - as per gpm.h
 //
 //  enum Gpm_Etype {
 //    GPM_MOVE=1,
@@ -151,7 +167,7 @@ func (e EventType) String() string {
 	return strings.Join(s, ",")
 }
 
-// Gpm Margin Enum
+// Gpm Margin Enum as per gpm.h
 //
 //   enum Gpm_Margin {GPM_TOP=1, GPM_BOT=2, GPM_LFT=4, GPM_RGT=8};
 type Margin int
@@ -180,23 +196,24 @@ func (m Margin) String() string {
 	return strings.Join(s, ",")
 }
 
+// Event defined as per gpm.h
 //
-//typedef struct Gpm_Event {
-//  unsigned char buttons, modifiers;  /* try to be a multiple of 4 */
-//  unsigned short vc;
-//  short dx, dy, x, y; /* displacement x,y for this event, and absolute x,y */
-//  enum Gpm_Etype type;
-//  /* clicks e.g. double click are determined by time-based processing */
-//  int clicks;
-//  enum Gpm_Margin margin;
-//  /* wdx/y: displacement of wheels in this event. Absolute values are not
-//   * required, because wheel movement is typically used for scrolling
-//   * or selecting fields, not for cursor positioning. The application
-//   * can determine when the end of file or form is reached, and not
-//   * go any further.
-//   * A single mouse will use wdy, "vertical scroll" wheel. */
-//  short wdx, wdy;
-//}              Gpm_Event;
+//  typedef struct Gpm_Event {
+//    unsigned char buttons, modifiers;  /* try to be a multiple of 4 */
+//    unsigned short vc;
+//    short dx, dy, x, y; /* displacement x,y for this event, and absolute x,y */
+//    enum Gpm_Etype type;
+//    /* clicks e.g. double click are determined by time-based processing */
+//    int clicks;
+//    enum Gpm_Margin margin;
+//    /* wdx/y: displacement of wheels in this event. Absolute values are not
+//     * required, because wheel movement is typically used for scrolling
+//     * or selecting fields, not for cursor positioning. The application
+//     * can determine when the end of file or form is reached, and not
+//     * go any further.
+//     * A single mouse will use wdy, "vertical scroll" wheel. */
+//    short wdx, wdy;
+//  }              Gpm_Event;
 type Event struct {
 	Buttons   uint8
 	Modifiers uint8
@@ -233,22 +250,6 @@ type GPM struct {
 	pid int
 }
 
-var nativeEndian binary.ByteOrder
-
-func init() {
-	buf := [2]byte{}
-	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
-
-	switch buf {
-	case [2]byte{0xCD, 0xAB}:
-		nativeEndian = binary.LittleEndian
-	case [2]byte{0xAB, 0xCD}:
-		nativeEndian = binary.BigEndian
-	default:
-		nativeEndian = binary.LittleEndian
-	}
-}
-
 // Struct sent via the socket after connecting
 //   typedef struct Gpm_Connect {
 //     unsigned short eventMask, defaultMask; // 4
@@ -274,7 +275,7 @@ var DefaultConf = GPMConnect{
 // "/proc/self/fd/0" and it will use the current pid, then it will
 // connect the /dev/gpmctl stream unix socket nd send Gpm_Connect struct
 func NewGPM(conf GPMConnect) (*GPM, error) {
-	tty, err := TTY()
+	tty, err := getTTY()
 	if err != nil {
 		return nil, err
 	}
