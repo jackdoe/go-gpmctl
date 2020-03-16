@@ -213,7 +213,7 @@ func (m Margin) String() string {
 //     * go any further.
 //     * A single mouse will use wdy, "vertical scroll" wheel. */
 //    short wdx, wdy;
-//  }              Gpm_Event;
+//  } Gpm_Event;
 type Event struct {
 	Buttons   uint8
 	Modifiers uint8
@@ -256,7 +256,7 @@ type GPM struct {
 //     unsigned short minMod, maxMod;         // 4
 //     int pid;                               // 4
 //     int vc;                                // 4
-//   }              Gpm_Connect;
+//   } Gpm_Connect;
 type GPMConnect struct {
 	EventMask   uint16
 	DefaultMask uint16
@@ -304,8 +304,7 @@ func NewGPM(conf GPMConnect) (*GPM, error) {
 }
 
 // Reads one event mouse, or blocks if there are no events
-// NB: some gpm has #define GPM_MAGIC 0x47706D4C in every message, at
-// the moment that is not supported
+// NB: some gpm's could have `#define GPM_MAGIC 0x47706D4C` in every message, at the moment that is not supported
 func (g *GPM) Read() (Event, error) {
 	// sizeof Gpm_Event, this assumes sizeof Gpm_EventType to be 4
 	// bytes and sizeof Margin to be 4 bytes, which is not guaranteed

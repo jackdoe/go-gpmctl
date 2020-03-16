@@ -99,7 +99,7 @@ Event defined as per gpm.h
        * go any further.
        * A single mouse will use wdy, "vertical scroll" wheel. */
       short wdx, wdy;
-    }              Gpm_Event;
+    } Gpm_Event;
 
 #### func (Event) String
 
@@ -187,8 +187,9 @@ close the gpm connection
 ```go
 func (g *GPM) Read() (Event, error)
 ```
-Reads one event mouse, or blocks if there are no events NB: some gpm has #define
-GPM_MAGIC 0x47706D4C in every message, at the moment that is not supported
+Reads one event mouse, or blocks if there are no events NB: some gpm's could
+have `#define GPM_MAGIC 0x47706D4C` in every message, at the moment that is not
+supported
 
 #### type GPMConnect
 
@@ -208,7 +209,7 @@ Struct sent via the socket after connecting
       unsigned short minMod, maxMod;         // 4
       int pid;                               // 4
       int vc;                                // 4
-    }              Gpm_Connect;
+    } Gpm_Connect;
 
 #### type Margin
 
