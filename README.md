@@ -21,7 +21,7 @@ example:
     )
 
     func main() {
-    	g, err := gpmctl.NewGPM(gpm.DefaultConf)
+    	g, err := gpmctl.NewGPM(gpmctl.DefaultConf)
     	if err != nil {
     		panic(err)
     	}
