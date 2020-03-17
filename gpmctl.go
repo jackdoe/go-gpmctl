@@ -168,7 +168,7 @@ func (b Buttons) String() string {
 //    GPM_ENTER=512,            /* enter event, user in Roi's */
 //    GPM_LEAVE=1024            /* leave event, used in Roi's */
 //  };
-type EventType int
+type EventType uint16
 
 const (
 	MOVE EventType = 1 << iota
@@ -183,6 +183,8 @@ const (
 	ENTER
 	LEAVE
 )
+
+const ANY EventType = EventType(^uint16(0))
 
 func (e EventType) String() string {
 	s := []string{}
@@ -318,15 +320,15 @@ type GPM struct {
 //     int vc;                                // 4
 //   } Gpm_Connect;
 type GPMConnect struct {
-	EventMask   uint16
-	DefaultMask uint16
+	EventMask   EventType
+	DefaultMask EventType
 	MinMod      uint16
 	MaxMod      uint16
 }
 
 var DefaultConf = GPMConnect{
-	EventMask:   ^uint16(0),
-	DefaultMask: ^uint16(0),
+	EventMask:   EventType(^uint16(0)),
+	DefaultMask: EventType(^uint16(0)),
 	MinMod:      0,
 	MaxMod:      ^uint16(0),
 }
@@ -347,10 +349,10 @@ func NewGPM(conf GPMConnect) (*GPM, error) {
 	pid := os.Getpid()
 	gpmConnect := make([]byte, 16)
 
-	nativeEndian.PutUint16(gpmConnect[0:], conf.EventMask)   // eventmask
-	nativeEndian.PutUint16(gpmConnect[2:], conf.DefaultMask) // defautmask
-	nativeEndian.PutUint16(gpmConnect[4:], conf.MinMod)      // minmod
-	nativeEndian.PutUint16(gpmConnect[6:], conf.MaxMod)      // maxmod
+	nativeEndian.PutUint16(gpmConnect[0:], uint16(conf.EventMask))   // eventmask
+	nativeEndian.PutUint16(gpmConnect[2:], uint16(conf.DefaultMask)) // defautmask
+	nativeEndian.PutUint16(gpmConnect[4:], conf.MinMod)              // minmod
+	nativeEndian.PutUint16(gpmConnect[6:], conf.MaxMod)              // maxmod
 
 	nativeEndian.PutUint32(gpmConnect[8:], uint32(pid))  // pid
 	nativeEndian.PutUint32(gpmConnect[12:], uint32(tty)) // vc

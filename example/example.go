@@ -7,7 +7,13 @@ import (
 )
 
 func main() {
-	g, err := gpmctl.NewGPM(gpmctl.DefaultConf)
+	g, err := gpmctl.NewGPM(gpmctl.GPMConnect{
+		EventMask:   gpmctl.ANY,
+		DefaultMask: ^gpmctl.HARD,
+		MinMod:      0,
+		MaxMod:      ^uint16(0),
+	})
+
 	if err != nil {
 		panic(err)
 	}
