@@ -56,8 +56,8 @@ const (
 
 ```go
 var DefaultConf = GPMConnect{
-	EventMask:   ^uint16(0),
-	DefaultMask: ^uint16(0),
+	EventMask:   EventType(^uint16(0)),
+	DefaultMask: EventType(^uint16(0)),
 	MinMod:      0,
 	MaxMod:      ^uint16(0),
 }
@@ -135,7 +135,7 @@ func (event Event) String() string
 #### type EventType
 
 ```go
-type EventType int
+type EventType uint16
 ```
 
 Gpm Event Type - as per gpm.h
@@ -174,6 +174,10 @@ const (
 	ENTER
 	LEAVE
 )
+```
+
+```go
+const ANY EventType = EventType(^uint16(0))
 ```
 
 #### func (EventType) String
@@ -220,8 +224,8 @@ supported
 
 ```go
 type GPMConnect struct {
-	EventMask   uint16
-	DefaultMask uint16
+	EventMask   EventType
+	DefaultMask EventType
 	MinMod      uint16
 	MaxMod      uint16
 }
