@@ -33,10 +33,10 @@
 //
 //
 //   ..
-//   2020/03/16 23:18:57 type:move[buttons:0, modifiers:0, vc:4] x:190[dx:0] y:28[dy:1], clicks:0 margin:, wdx:0, wdy:0
-//   2020/03/16 23:18:57 type:move[buttons:0, modifiers:0, vc:4] x:189[dx:-1] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
-//   2020/03/16 23:18:57 type:down,single[buttons:4, modifiers:0, vc:4] x:189[dx:0] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
-//   2020/03/16 23:18:57 type:drag,single,mflag[buttons:4, modifiers:0, vc:4] x:189[dx:0] y:29[dy:1], clicks:0 margin:, wdx:0, wdy:0
+//   2020/03/16 23:18:57 type:move[buttons:, modifiers:0, vc:4] x:190[dx:0] y:28[dy:1], clicks:0 margin:, wdx:0, wdy:0
+//   2020/03/16 23:18:57 type:move[buttons:, modifiers:0, vc:4] x:189[dx:-1] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
+//   2020/03/16 23:18:57 type:down,single[buttons:, modifiers:0, vc:4] x:189[dx:0] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
+//   2020/03/16 23:18:57 type:drag,single,mflag[buttons:, modifiers:0, vc:4] x:189[dx:0] y:29[dy:1], clicks:0 margin:, wdx:0, wdy:0
 // ..
 package gpmctl
 
@@ -85,6 +85,66 @@ func getTTY() (int, error) {
 	}
 
 	return int(tty), nil
+}
+
+// /*....................................... Cfg buttons */
+// /* Each button has one bit in the 16 bit buttons field.
+//  * Mouse movement and wheel movement are not associated with a button
+//  * i.e. buttons=GPM_B_NONE in these cases
+//  * (except for ms3 mouse, for reasons unknown?)
+//  * The middle button if pressed down (or clicked) is independent of
+//  *  the wheel "device" which it happens to be associated with
+//  * The use of GPM_B_UP/DOWN with ms3 is unclear. Maybe the wheel
+//  * could be rolled forward then backward
+//  * and this would generate a 'click' event on 'button 5' GPM_B_UP,
+//  * but really the expected behaviour of wheel is movement, typically
+//  * used for jump scrolling or for jumping between fields on a form. */
+//
+// #define GPM_B_DOWN      32
+// #define GPM_B_UP        16
+// #define GPM_B_FOURTH    8
+// #define GPM_B_LEFT      4
+// #define GPM_B_MIDDLE    2
+// #define GPM_B_RIGHT     1
+// #define GPM_B_NONE      0
+
+type Buttons uint8
+
+const (
+	B_NONE   Buttons = 0
+	B_RIGHT  Buttons = 1
+	B_MIDDLE Buttons = 2
+	B_LEFT   Buttons = 4
+	B_FOURTH Buttons = 8
+	B_UP     Buttons = 16
+	B_DOWN   Buttons = 32
+)
+
+func (b Buttons) String() string {
+	s := []string{}
+	if b&B_NONE > 0 {
+		s = append(s, "none")
+	}
+	if b&B_RIGHT > 0 {
+		s = append(s, "right")
+	}
+	if b&B_MIDDLE > 0 {
+		s = append(s, "middle")
+	}
+	if b&B_LEFT > 0 {
+		s = append(s, "left")
+	}
+	if b&B_FOURTH > 0 {
+		s = append(s, "fourth")
+	}
+	if b&B_UP > 0 {
+		s = append(s, "up")
+	}
+	if b&B_DOWN > 0 {
+		s = append(s, "down")
+	}
+
+	return strings.Join(s, ",")
 }
 
 // Gpm Event Type - as per gpm.h
@@ -215,7 +275,7 @@ func (m Margin) String() string {
 //    short wdx, wdy;
 //  } Gpm_Event;
 type Event struct {
-	Buttons   uint8
+	Buttons   Buttons
 	Modifiers uint8
 	VC        uint16
 	DX        int16
@@ -230,7 +290,7 @@ type Event struct {
 }
 
 func (event Event) String() string {
-	return fmt.Sprintf("type:%v[buttons:%v, modifiers:%v, vc:%v] x:%v[dx:%v] y:%v[dy:%v], clicks:%v margin:%v, wdx:%v, wdy:%v",
+	return fmt.Sprintf("type:%v[buttons:%s, modifiers:%v, vc:%v] x:%v[dx:%v] y:%v[dy:%v], clicks:%v margin:%v, wdx:%v, wdy:%v",
 		event.Type,
 		event.Buttons,
 		event.Modifiers,
@@ -314,7 +374,7 @@ func (g *GPM) Read() (Event, error) {
 		return Event{}, err
 	}
 	e := Event{
-		Buttons:   uint8(nativeEndian.Uint16(b[0:])),
+		Buttons:   Buttons(uint8(nativeEndian.Uint16(b[0:]))),
 		Modifiers: uint8(nativeEndian.Uint16(b[1:])),
 		VC:        nativeEndian.Uint16(b[2:]),
 		DX:        int16(nativeEndian.Uint16(b[4:])),

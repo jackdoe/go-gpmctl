@@ -36,10 +36,10 @@ example:
     }
 
     ..
-    2020/03/16 23:18:57 type:move[buttons:0, modifiers:0, vc:4] x:190[dx:0] y:28[dy:1], clicks:0 margin:, wdx:0, wdy:0
-    2020/03/16 23:18:57 type:move[buttons:0, modifiers:0, vc:4] x:189[dx:-1] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
-    2020/03/16 23:18:57 type:down,single[buttons:4, modifiers:0, vc:4] x:189[dx:0] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
-    2020/03/16 23:18:57 type:drag,single,mflag[buttons:4, modifiers:0, vc:4] x:189[dx:0] y:29[dy:1], clicks:0 margin:, wdx:0, wdy:0
+    2020/03/16 23:18:57 type:move[buttons:, modifiers:0, vc:4] x:190[dx:0] y:28[dy:1], clicks:0 margin:, wdx:0, wdy:0
+    2020/03/16 23:18:57 type:move[buttons:, modifiers:0, vc:4] x:189[dx:-1] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
+    2020/03/16 23:18:57 type:down,single[buttons:, modifiers:0, vc:4] x:189[dx:0] y:28[dy:0], clicks:0 margin:, wdx:0, wdy:0
+    2020/03/16 23:18:57 type:drag,single,mflag[buttons:, modifiers:0, vc:4] x:189[dx:0] y:29[dy:1], clicks:0 margin:, wdx:0, wdy:0
 
 ..
 
@@ -63,11 +63,36 @@ var DefaultConf = GPMConnect{
 }
 ```
 
+#### type Buttons
+
+```go
+type Buttons uint8
+```
+
+
+```go
+const (
+	B_NONE   Buttons = 0
+	B_RIGHT  Buttons = 1
+	B_MIDDLE Buttons = 2
+	B_LEFT   Buttons = 4
+	B_FOURTH Buttons = 8
+	B_UP     Buttons = 16
+	B_DOWN   Buttons = 32
+)
+```
+
+#### func (Buttons) String
+
+```go
+func (b Buttons) String() string
+```
+
 #### type Event
 
 ```go
 type Event struct {
-	Buttons   uint8
+	Buttons   Buttons
 	Modifiers uint8
 	VC        uint16
 	DX        int16
