@@ -4,7 +4,7 @@
 
 # /dev/gpmctl control socket reader
 
-general purpose mouse daemon (https://linux.die.net/man/8/gpm) gives mouse
+general purpose mouse daemon(GPM) (https://linux.die.net/man/8/gpm) gives mouse
 support to the linux console
 
 it exposes /dev/gpmctl to which you can connect, send your current vc and pid
